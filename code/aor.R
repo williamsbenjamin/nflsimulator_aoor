@@ -14,14 +14,14 @@ library(kableExtra)
 
 ## ----data, warning = F, message = F, include = F, cache = T----
 options(dplyr.summarise.inform = FALSE)
-Playoffs <- readRDS(file = "../data_2/playoffs_sims.rds")
-all_1819 <- readRDS(file = "../data_2/all_1819.rds")
+Playoffs <- readRDS(file = "../data/playoffs_sims.rds")
+all_1819 <- readRDS(file = "../data/all_1819.rds")
 #qbr_sims <- readRDS(file = "../data/QBR_sims.rds")
-plays <- readRDS(file = "../data_2/pbp-data-1819.rds")
-qbr_thirds_sims <- readRDS(file = "../data_2/QBR_thirds_sims.rds")
-fourths_sims <- readRDS(file = "../data_2/fourth_down_sims.rds")
+plays <- readRDS(file = "../data/pbp-data-1819.rds")
+qbr_thirds_sims <- readRDS(file = "../data/QBR_thirds_sims.rds")
+fourths_sims <- readRDS(file = "../data/fourth_down_sims.rds")
 fourths_sims$Scenario <- as.factor(fourths_sims$Scenario)
-yds_less_than <- readRDS(file = "../data_2/yds_less_than_sims.rds")
+yds_less_than <- readRDS(file = "../data/yds_less_than_sims.rds")
 pass_run <- plays %>% 
   dplyr::filter(., play_type %in% c("run", "pass"), down %in% 1:3) %>% 
   dplyr::mutate(., year = lubridate::year(game_date)) %>% 
