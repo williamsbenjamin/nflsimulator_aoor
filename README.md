@@ -1,1 +1,1 @@
-This is the repository for the *Simulation-Based Decision Making in the NFL usingNFLSimulatoR* paper forthcoming in *Annals of Operations Research*.
+This is the repository for the *Simulation-Based Decision Making in the NFL usingNFLSimulatoR* paper forthcoming in *Annals of Operations Research*. The code repository contains an R file: **aor.R** which contains the code to reproduce the figures in the manuscript.
