@@ -14,14 +14,14 @@ library(kableExtra)
 
 ## ----data, warning = F, message = F, include = F, cache = T----
 options(dplyr.summarise.inform = FALSE)
-Playoffs <- readRDS(file = "../data_2/playoffs_sims.rds")
-all_1819 <- readRDS(file = "../data_2/all_1819.rds")
+Playoffs <- readRDS(file = "data_2/playoffs_sims.rds")
+all_1819 <- readRDS(file = "data_2/all_1819.rds")
 #qbr_sims <- readRDS(file = "../data/QBR_sims.rds")
-plays <- readRDS(file = "../data_2/pbp-data-1819.rds")
-qbr_thirds_sims <- readRDS(file = "../data_2/QBR_thirds_sims.rds")
-fourths_sims <- readRDS(file = "../data_2/fourth_down_sims.rds")
+plays <- readRDS(file = "data_2/pbp-data-1819.rds")
+qbr_thirds_sims <- readRDS(file = "data_2/QBR_thirds_sims.rds")
+fourths_sims <- readRDS(file = "data_2/fourth_down_sims.rds")
 fourths_sims$Scenario <- as.factor(fourths_sims$Scenario)
-yds_less_than <- readRDS(file = "../data_2/yds_less_than_sims.rds")
+yds_less_than <- readRDS(file = "data_2/yds_less_than_sims.rds")
 pass_run <- plays %>% 
   dplyr::filter(., play_type %in% c("run", "pass"), down %in% 1:3) %>% 
   dplyr::mutate(., year = lubridate::year(game_date)) %>% 
@@ -136,7 +136,7 @@ p_score <-  fourths_sims %>%
   ggplot(aes(x = factor(Scenario,levels = c("always_go_for_it","empirical","yds_less_than_5","exp_pts",
                             "never_go_for_it")), y = pct,fill = points),
          show.legend = F) +
-  geom_col(position = "stack",show.legend = F) +
+  geom_col(position = "stack",show.legend = F,color = "black") +
   ylab("Percent of Drives") + 
   xlab(NULL) +
 scale_x_discrete(breaks = c("always_go_for_it","empirical","exp_pts",
@@ -146,16 +146,19 @@ scale_x_discrete(breaks = c("always_go_for_it","empirical","exp_pts",
   scale_y_continuous(limits = c(0, 1), breaks = seq(0.0, 1, by = .1),
                      #labels = scales::percent,
                      labels = percent_format(accuracy = 1)) +
-    scale_fill_brewer("Score Type",
-                      breaks = c("0","3","7"),
-                      labels = c("0","FG","TD"),
-                    palette = "Dark2") +
+  scale_fill_manual("Score Type",
+                    breaks = c("0","3","7"),
+                    labels = c("0","FG","TD"),
+                    values = c("0" = "white","3" = "gray","7" = "black")) +
+  # scale_fill_brewer("Score Type",
+  #                     breaks = c("0","3","7"),
+  #                     labels = c("0","FG","TD"),
+  #                   palette = "Dark2") +
   theme_bw() + 
   theme(legend.title = element_blank(),
         legend.key.size = unit(0.75,"line"),
         plot.title = element_text(size = 10))
 p_score
-
 
 ## ----table1, full_width = FALSE, echo=F----
 fourths_table <- fourths_sims %>% 
@@ -213,11 +216,15 @@ yds_strats$Scenario <- as.numeric(substr(yds_strats$Scenario,15,nchar(yds_strats
 # Percent Score Figure
 yds_score <- ggplot(data = subset(yds_strats,score_type %in% c("FG", "TD")),
                   aes(x = reorder(Scenario,Scenario), y = score_pct,fill = score_type)) +
-  geom_bar(stat = 'identity', position = "stack") +  
-  scale_fill_brewer("Score Type",
-                      breaks = c("FG","TD"),
-                      labels = c("FG","TD"),
-                    palette = "Dark2") +
+  geom_bar(stat = 'identity', position = "stack",color = "black") +  
+  # scale_fill_brewer("Score Type",
+  #                     breaks = c("FG","TD"),
+  #                     labels = c("FG","TD"),
+  #                   palette = "Dark2") +
+  scale_fill_manual("Score Type",
+                    breaks = c("FG","TD"),
+                    labels = c("FG","TD"),
+                    values = c("FG" = "gray","TD" = "white")) +
   xlab("Yards less than") + 
   ylab("Percent Score") +
   scale_y_continuous(limits = c(0, .4), breaks = seq(0.0, .4, by = .1),
@@ -269,7 +276,6 @@ plot_grid(plot_grid(NULL,yds_score,NULL,ncol=3,
           plot_grid(yds_perc,turn_yds,ncol =2,labels = c("2.2","2.3"),label_size = 10,vjust = 0.2,hjust = -2.5),
           ncol = 1)
 
-
 ## ----pass-rush-all-facet, fig.width = 4, fig.height=3, fig.cap = "\\label{fig:pass-rush-all-facet}The percentage of simulated drives that resulted in a score (touchdown or field goal) in 2018 and 2019. The dashed line represents the actual proportion of passing plays on first, second, and third downs in both years.", echo = F----
 p <- ggplot(data = all_scores,
             aes(x = proportion, y = p))
@@ -293,7 +299,8 @@ p <- ggplot(data = subset(all_scores_by_type,
                           score_type %in% c("FG", "TD")),
             aes(x = proportion, y = p, col = score_type, group = score_type))
 # suppressWarnings(p + geom_point(position = position_dodge(width = .05)) +
-p + geom_point(position = position_dodge(width = .05), alpha = .5, size = 1) +
+p + geom_point(position = position_dodge(width = .05), alpha = .5, 
+               size = 2,aes(shape = score_type),show.legend = F) +
 #  geom_smooth(aes(col = score_type),method = "loess") +
   geom_errorbar(aes(ymin = lower, ymax = upper),
                 position = position_dodge(width = .05), alpha = .5) +
@@ -309,11 +316,11 @@ p + geom_point(position = position_dodge(width = .05), alpha = .5, size = 1) +
   theme_bw() +
   theme(legend.title = element_blank())
 
-
 ## ----pass-rush-facet, fig.width = 4.25, fig.height=3.25, fig.cap = "\\label{fig:pass-rush-facet} The percentage of simulated drives that resulted in a score by type (touchdown or field goal) in 2018 and 2019 colored by playoff teams (orange) versus non-playoff teams (purple).", echo = F----
 p <- ggplot(data = subset(scores, score_type %in% c("FG", "TD")),
             aes(x = proportion, y = p, col = playoffs))
-p + geom_point(position = position_dodge(width = .05), alpha = .5, size = 1) +
+p + geom_point(position = position_dodge(width = .05), alpha = .5, 
+               size = 2,aes(shape = playoffs),show.legend = F) +
 #  geom_smooth(aes(col = playoffs),method = "loess",show.legend = T) +
   geom_errorbar(aes(ymin = lower, ymax = upper), 
                 position = position_dodge(.05),
@@ -329,11 +336,11 @@ p + geom_point(position = position_dodge(width = .05), alpha = .5, size = 1) +
   guides(col = F) +
   theme_bw()
 
-
 ## ----pass-rush-qbr, fig.width = 4, fig.height=3, fig.cap = "\\label{fig:pass-rush-qbr}The percentage of simulated drives that resulted in a score by type (touchdown or field goal) in 2018 and 2019 colored by overall team passer rating classification: High (green), Medium (purple), and Low (orange).", echo = F----
 p <- ggplot(data = subset(qbr_scores, score_type %in% c("FG", "TD")),
                   aes(x = proportion, y = p, color = qbr_short)) 
-p + geom_point(position = position_dodge(width = .05), alpha = .5, size = 1) +
+p + geom_point(position = position_dodge(width = .05), alpha = .5, 
+               size = 2,aes(shape =qbr_short),show.legend = F ) +
 #  geom_smooth(aes(col = qbr_short),method = "loess") +
   geom_errorbar(aes(ymin = lower, ymax = upper), 
                 position = position_dodge(.05), 
@@ -348,5 +355,4 @@ p + geom_point(position = position_dodge(width = .05), alpha = .5, size = 1) +
                      labels = percent_format(accuracy = 1)) + 
   guides(col = F) +
   theme_bw()
-
 
